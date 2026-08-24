@@ -105,8 +105,9 @@ function LoginPage() {
             </div>
             <h2 className="font-display text-[38px] leading-none">Enter your PIN</h2>
             <p className="mt-3 text-sm text-muted-foreground">
-              Owner 1111 · Cashier 2222 · Kitchen 3333 · Waiter 4444 · Helper 5555
+              Enter your 4-digit staff PIN to open your screen.
             </p>
+
           </div>
 
           <div className="mb-6 flex justify-center gap-3 lg:justify-start">
