@@ -126,12 +126,18 @@ export function subscribe(cb: () => void) {
 export const getState = () => state;
 
 export function usePos<T>(selector: (s: PosState) => T): T {
-  return useSyncExternalStore(
-    subscribe,
-    () => selector(state),
-    () => selector(state),
-  );
+  // Selectors build fresh arrays/objects, so cache per state identity —
+  // otherwise getSnapshot returns a new value every call and React loops.
+  const cache = useRef<{ state: PosState; value: T } | null>(null);
+  const getSnapshot = () => {
+    if (!cache.current || cache.current.state !== state) {
+      cache.current = { state, value: selector(state) };
+    }
+    return cache.current.value;
+  };
+  return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 }
+
 
 /* ---------- doc helpers ---------- */
 
