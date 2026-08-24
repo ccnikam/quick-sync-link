@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as KitchenRouteImport } from './routes/kitchen'
 import { Route as PosRouteImport } from './routes/pos'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KitchenRoute = KitchenRouteImport.update({
+  id: '/kitchen',
+  path: '/kitchen',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PosRoute = PosRouteImport.update({
@@ -25,27 +31,31 @@ const PosRoute = PosRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/kitchen': typeof KitchenRoute
   '/pos': typeof PosRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/kitchen': typeof KitchenRoute
   '/pos': typeof PosRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/kitchen': typeof KitchenRoute
   '/pos': typeof PosRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/pos'
+  fullPaths: '/' | '/kitchen' | '/pos'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/pos'
-  id: '__root__' | '/' | '/pos'
+  to: '/' | '/kitchen' | '/pos'
+  id: '__root__' | '/' | '/kitchen' | '/pos'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  KitchenRoute: typeof KitchenRoute
   PosRoute: typeof PosRoute
 }
 
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/kitchen': {
+      id: '/kitchen'
+      path: '/kitchen'
+      fullPath: '/kitchen'
+      preLoaderRoute: typeof KitchenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pos': {
@@ -70,6 +87,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  KitchenRoute: KitchenRoute,
   PosRoute: PosRoute,
 }
 export const routeTree = rootRouteImport
