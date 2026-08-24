@@ -33,16 +33,25 @@ export function signOut() {
   emit();
 }
 
-export function useSession() {
-  return useSyncExternalStore(
-    (cb) => {
-      listeners.add(cb);
-      return () => listeners.delete(cb);
-    },
-    () => ({ session, ready }),
-    () => ({ session: null as Session, ready: false }),
-  );
+let snapshot: { session: Session; ready: boolean } = { session: null, ready: false };
+const serverSnapshot = { session: null as Session, ready: false };
+
+function subscribe(cb: () => void) {
+  listeners.add(cb);
+  return () => listeners.delete(cb);
 }
+
+function getSnapshot() {
+  if (snapshot.session !== session || snapshot.ready !== ready) {
+    snapshot = { session, ready };
+  }
+  return snapshot;
+}
+
+export function useSession() {
+  return useSyncExternalStore(subscribe, getSnapshot, () => serverSnapshot);
+}
+
 
 export const homeFor = (role: Role) =>
   role === "cook" ? "/kitchen" : role === "waiter" || role === "helper" ? "/waiter" : "/pos";
