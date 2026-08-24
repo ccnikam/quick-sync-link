@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as KitchenRouteImport } from './routes/kitchen'
 import { Route as PosRouteImport } from './routes/pos'
 import { Route as WaiterRouteImport } from './routes/waiter'
@@ -17,6 +18,11 @@ import { Route as WaiterRouteImport } from './routes/waiter'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const KitchenRoute = KitchenRouteImport.update({
@@ -37,12 +43,14 @@ const WaiterRoute = WaiterRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/kitchen': typeof KitchenRoute
   '/pos': typeof PosRoute
   '/waiter': typeof WaiterRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/kitchen': typeof KitchenRoute
   '/pos': typeof PosRoute
   '/waiter': typeof WaiterRoute
@@ -50,20 +58,22 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/kitchen': typeof KitchenRoute
   '/pos': typeof PosRoute
   '/waiter': typeof WaiterRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/kitchen' | '/pos' | '/waiter'
+  fullPaths: '/' | '/admin' | '/kitchen' | '/pos' | '/waiter'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/kitchen' | '/pos' | '/waiter'
-  id: '__root__' | '/' | '/kitchen' | '/pos' | '/waiter'
+  to: '/' | '/admin' | '/kitchen' | '/pos' | '/waiter'
+  id: '__root__' | '/' | '/admin' | '/kitchen' | '/pos' | '/waiter'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
   KitchenRoute: typeof KitchenRoute
   PosRoute: typeof PosRoute
   WaiterRoute: typeof WaiterRoute
@@ -76,6 +86,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/kitchen': {
@@ -104,6 +121,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
   KitchenRoute: KitchenRoute,
   PosRoute: PosRoute,
   WaiterRoute: WaiterRoute,
