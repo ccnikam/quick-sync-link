@@ -5,7 +5,6 @@ import {
   ChefHat,
   Minus,
   Plus,
-  Printer,
   Search,
   Trash2,
   Wallet,
@@ -125,7 +124,10 @@ function PosPage() {
   const doKot = () => {
     if (selected == null) return;
     const kot = sendKot(selected);
-    if (!kot) return toast.info("Nothing new to send to the kitchen.");
+    if (!kot) {
+      toast.info("Nothing new to send to the kitchen.");
+      return;
+    }
     printKot(kot);
     toast.success(`KOT #${kot.no} sent to kitchen`);
   };
@@ -133,7 +135,10 @@ function PosPage() {
   const doSettle = (mode: PaymentMode) => {
     if (selected == null) return;
     const bill = settleTable(selected, mode, session?.name);
-    if (!bill) return toast.error("Add items before settling the bill.");
+    if (!bill) {
+      toast.error("Add items before settling the bill.");
+      return;
+    }
     printBill(bill);
     toast.success(`Bill #${bill.no} · ${rupees(bill.total)} — ${mode.toUpperCase()}`);
     setSelected(null);
@@ -404,5 +409,3 @@ function PosPage() {
     </div>
   );
 }
-
-export { Printer };
