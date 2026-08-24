@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as KitchenRouteImport } from './routes/kitchen'
 import { Route as PosRouteImport } from './routes/pos'
+import { Route as WaiterRouteImport } from './routes/waiter'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -28,35 +29,44 @@ const PosRoute = PosRouteImport.update({
   path: '/pos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WaiterRoute = WaiterRouteImport.update({
+  id: '/waiter',
+  path: '/waiter',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/kitchen': typeof KitchenRoute
   '/pos': typeof PosRoute
+  '/waiter': typeof WaiterRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/kitchen': typeof KitchenRoute
   '/pos': typeof PosRoute
+  '/waiter': typeof WaiterRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/kitchen': typeof KitchenRoute
   '/pos': typeof PosRoute
+  '/waiter': typeof WaiterRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/kitchen' | '/pos'
+  fullPaths: '/' | '/kitchen' | '/pos' | '/waiter'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/kitchen' | '/pos'
-  id: '__root__' | '/' | '/kitchen' | '/pos'
+  to: '/' | '/kitchen' | '/pos' | '/waiter'
+  id: '__root__' | '/' | '/kitchen' | '/pos' | '/waiter'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   KitchenRoute: typeof KitchenRoute
   PosRoute: typeof PosRoute
+  WaiterRoute: typeof WaiterRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -82,6 +92,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/waiter': {
+      id: '/waiter'
+      path: '/waiter'
+      fullPath: '/waiter'
+      preLoaderRoute: typeof WaiterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -89,6 +106,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   KitchenRoute: KitchenRoute,
   PosRoute: PosRoute,
+  WaiterRoute: WaiterRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
