@@ -3,29 +3,76 @@ import { HOTEL, type Bill, type Kot } from "./types";
 const esc = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-function openPrint(inner: string) {
-  if (typeof window === "undefined") return;
-  const w = window.open("", "_blank", "width=380,height=640");
-  if (!w) return;
-  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Print</title>
-<style>
+const CSS = `
   @page { size: 80mm auto; margin: 3mm; }
-  body { font-family: "Courier New", monospace; font-size: 12px; color: #000; width: 72mm; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: "Courier New", ui-monospace, monospace; font-size: 12px; line-height: 1.35;
+         color: #000; background: #fff; width: 72mm; }
   .c { text-align: center; }
   .r { text-align: right; }
   .b { font-weight: 700; }
   .big { font-size: 15px; }
+  .xl { font-size: 19px; }
   hr { border: none; border-top: 1px dashed #000; margin: 4px 0; }
-  table { width: 100%; border-collapse: collapse; }
-  td { padding: 1px 0; vertical-align: top; }
-</style></head><body>${inner}
-<script>window.onload=function(){window.print();setTimeout(function(){window.close()},400)}</script>
-</body></html>`);
-  w.document.close();
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  td { padding: 1px 0; vertical-align: top; word-break: break-word; }
+  .qty { width: 22%; text-align: center; }
+  .amt { width: 26%; text-align: right; }
+  @media screen {
+    body { width: 302px; margin: 12px auto; padding: 10px; border: 1px solid #ccc; }
+  }
+`;
+
+/**
+ * Prints receipt markup. Uses a hidden same-page iframe so it works when
+ * pop-ups are blocked (common on tablets / kiosk browsers); falls back to a
+ * new window if the iframe route is unavailable.
+ */
+function openPrint(inner: string) {
+  if (typeof window === "undefined") return;
+  const html = `<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${HOTEL.name}</title><style>${CSS}</style></head><body>${inner}</body></html>`;
+
+  try {
+    const frame = document.createElement("iframe");
+    frame.setAttribute("aria-hidden", "true");
+    frame.style.cssText =
+      "position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;";
+    document.body.appendChild(frame);
+    const doc = frame.contentDocument;
+    if (!doc) throw new Error("no iframe document");
+    doc.open();
+    doc.write(html);
+    doc.close();
+    const run = () => {
+      try {
+        frame.contentWindow?.focus();
+        frame.contentWindow?.print();
+      } catch {
+        /* ignore */
+      }
+      window.setTimeout(() => frame.remove(), 1500);
+    };
+    if (doc.readyState === "complete") window.setTimeout(run, 60);
+    else frame.onload = () => window.setTimeout(run, 60);
+    return;
+  } catch {
+    const w = window.open("", "_blank", "width=380,height=640");
+    if (!w) return;
+    w.document.write(
+      html.replace(
+        "</body>",
+        `<script>window.onload=function(){window.print();setTimeout(function(){window.close()},400)}</script></body>`,
+      ),
+    );
+    w.document.close();
+  }
 }
 
 const header = () => `
-  <div class="c b big">${HOTEL.name}</div>
+  <div class="c b xl">${HOTEL.name}</div>
   <div class="c b">${HOTEL.sub}</div>
   <div class="c">${HOTEL.tagline}</div>
   <div class="c">Contact: ${HOTEL.phone}</div>`;
@@ -34,8 +81,8 @@ export function printBill(bill: Bill) {
   const d = new Date(bill.createdAt);
   const rows = bill.items
     .map(
-      (l) => `<tr><td>${esc(l.name)}</td><td class="c">${l.qty}</td>
-      <td class="r">${l.price * l.qty}</td></tr>`,
+      (l) => `<tr><td>${esc(l.name)}</td><td class="qty">${l.qty}</td>
+      <td class="amt">${l.price * l.qty}</td></tr>`,
     )
     .join("");
   openPrint(`
@@ -47,15 +94,15 @@ export function printBill(bill: Bill) {
     <div>${d.toLocaleDateString("en-IN")} ${d.toLocaleTimeString("en-IN")}</div>
     <hr/>
     <table>
-      <tr class="b"><td>Item</td><td class="c">Qty</td><td class="r">Amt</td></tr>
+      <tr class="b"><td>Item</td><td class="qty">Qty</td><td class="amt">Amt</td></tr>
       ${rows}
     </table>
     <hr/>
     <table>
-      <tr><td>Subtotal</td><td class="r">${bill.subtotal}</td></tr>
-      ${bill.discountAmt ? `<tr><td>Discount (${bill.discountPct}%)</td><td class="r">-${bill.discountAmt}</td></tr>` : ""}
-      <tr class="b big"><td>TOTAL</td><td class="r">Rs ${bill.total}</td></tr>
-      <tr><td>Payment</td><td class="r">${bill.mode.toUpperCase()}</td></tr>
+      <tr><td>Subtotal</td><td class="amt">${bill.subtotal}</td></tr>
+      ${bill.discountAmt ? `<tr><td>Discount (${bill.discountPct}%)</td><td class="amt">-${bill.discountAmt}</td></tr>` : ""}
+      <tr class="b big"><td>TOTAL</td><td class="amt">Rs ${bill.total}</td></tr>
+      <tr><td>Payment</td><td class="amt">${bill.mode.toUpperCase()}</td></tr>
     </table>
     <hr/>
     <div class="c">Thank you! Visit again</div>
@@ -67,15 +114,15 @@ export function printKot(kot: Kot) {
   const rows = kot.items
     .map(
       (i) =>
-        `<tr><td class="b">${i.qty} x</td><td>${esc(i.name)}${i.note ? `<br/><i>${esc(i.note)}</i>` : ""}</td></tr>`,
+        `<tr><td class="b" style="width:18%">${i.qty} x</td><td>${esc(i.name)}${i.note ? `<br/><i>${esc(i.note)}</i>` : ""}</td></tr>`,
     )
     .join("");
   openPrint(`
-    <div class="c b big">KOT #${kot.no}</div>
+    <div class="c b xl">KOT #${kot.no}</div>
     <div class="c">${HOTEL.name}</div>
     <hr/>
-    <div class="b">TABLE ${kot.tableId}</div>
-    <div>${d.toLocaleTimeString("en-IN")}</div>
+    <div class="b big">TABLE ${kot.tableId}</div>
+    <div>${d.toLocaleDateString("en-IN")} ${d.toLocaleTimeString("en-IN")}</div>
     <hr/>
     <table>${rows}</table>
     <hr/>
