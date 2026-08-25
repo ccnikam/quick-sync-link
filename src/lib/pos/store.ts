@@ -125,7 +125,20 @@ export function subscribe(cb: () => void) {
 
 export const getState = () => state;
 
+function shallowEqual(a: unknown, b: unknown): boolean {
+  if (Object.is(a, b)) return true;
+  if (typeof a !== "object" || typeof b !== "object" || a === null || b === null) return false;
+  if (Array.isArray(a) !== Array.isArray(b)) return false;
+  const ka = Object.keys(a as object);
+  const kb = Object.keys(b as object);
+  if (ka.length !== kb.length) return false;
+  return ka.every((k) =>
+    Object.is((a as Record<string, unknown>)[k], (b as Record<string, unknown>)[k]),
+  );
+}
+
 export function usePos<T>(selector: (s: PosState) => T): T {
+
   // Selectors build fresh arrays/objects, so cache per state identity —
   // otherwise getSnapshot returns a new value every call and React loops.
   // The selector itself is also cached: parameterised selectors (e.g.
