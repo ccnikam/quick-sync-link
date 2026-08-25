@@ -218,22 +218,29 @@ function PosPage() {
               </div>
             )}
 
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            <div className="grid grid-cols-1 gap-2 min-[420px]:grid-cols-2 sm:grid-cols-3">
               {results.map((m) => {
                 const st = stockFor(m.id);
                 const out = st ? st.qty <= 0 : false;
+                const inCart = qtyById.get(m.id) ?? 0;
                 return (
                   <button
                     key={m.id}
                     disabled={out}
                     onClick={() => add(m.id, m.name, m.price)}
                     className={cn(
-                      "rounded-xl border border-border bg-card p-3 text-left shadow-[var(--shadow-card)] transition active:scale-[.98] hover:border-primary/50",
+                      "relative min-h-[64px] rounded-xl border border-border bg-card p-3 text-left shadow-[var(--shadow-card)] transition active:scale-[.98] hover:border-primary/50",
                       out && "opacity-40",
+                      inCart > 0 && "border-primary/60 bg-primary/5",
                     )}
                   >
-                    <div className="text-sm font-semibold leading-tight">{m.name}</div>
-                    <div className="mt-1.5 flex items-center justify-between">
+                    {inCart > 0 && (
+                      <span className="tabular absolute right-2 top-2 grid h-6 min-w-6 place-items-center rounded-full bg-primary px-1.5 text-[11px] font-bold text-primary-foreground">
+                        {inCart}
+                      </span>
+                    )}
+                    <div className="pr-7 text-sm font-semibold leading-tight">{m.name}</div>
+                    <div className="mt-1.5 flex items-center justify-between gap-2">
                       <span className="tabular text-sm font-bold text-primary">
                         {rupees(m.price)}
                       </span>
