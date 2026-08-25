@@ -101,6 +101,7 @@ export function PosShell({ children, allow }: { children: ReactNode; allow: Role
           >
             <LogOut className="h-4 w-4" />
           </button>
+          </div>
         </div>
         <nav className="no-scrollbar flex gap-1 overflow-x-auto px-3 pb-2 sm:px-5">
           {nav.map((n) => {
