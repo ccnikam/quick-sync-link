@@ -109,6 +109,12 @@ function PosPage() {
 
   const t = table;
   const { subtotal, discountAmt, total } = totals(t);
+  const qtyById = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const l of t?.items ?? []) m.set(l.itemId, (m.get(l.itemId) ?? 0) + l.qty);
+    return m;
+  }, [t?.items]);
+  const itemCount = (t?.items ?? []).reduce((s, l) => s + l.qty, 0);
 
   const add = (id: string, name: string, price: number) => {
     if (selected == null) return;
