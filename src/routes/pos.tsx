@@ -177,7 +177,7 @@ function PosPage() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setSelected(null)}
-                className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-border bg-card md:hidden"
+                className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-border bg-card lg:hidden"
                 aria-label="Back to tables"
               >
                 <ArrowLeft className="h-4 w-4" />
