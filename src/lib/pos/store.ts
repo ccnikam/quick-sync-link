@@ -128,15 +128,18 @@ export const getState = () => state;
 export function usePos<T>(selector: (s: PosState) => T): T {
   // Selectors build fresh arrays/objects, so cache per state identity —
   // otherwise getSnapshot returns a new value every call and React loops.
-  const cache = useRef<{ state: PosState; value: T } | null>(null);
+  // The selector itself is also cached: parameterised selectors (e.g.
+  // selTable(id)) change identity when their argument changes.
+  const cache = useRef<{ state: PosState; selector: (s: PosState) => T; value: T } | null>(null);
   const getSnapshot = () => {
-    if (!cache.current || cache.current.state !== state) {
-      cache.current = { state, value: selector(state) };
+    if (!cache.current || cache.current.state !== state || cache.current.selector !== selector) {
+      cache.current = { state, selector, value: selector(state) };
     }
     return cache.current.value;
   };
   return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 }
+
 
 
 /* ---------- doc helpers ---------- */
