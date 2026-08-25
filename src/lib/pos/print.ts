@@ -38,25 +38,35 @@ function openPrint(inner: string) {
   try {
     const frame = document.createElement("iframe");
     frame.setAttribute("aria-hidden", "true");
+    // Must be non-zero sized & visible-ish for some mobile browsers to print it.
     frame.style.cssText =
-      "position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;";
-    document.body.appendChild(frame);
-    const doc = frame.contentDocument;
-    if (!doc) throw new Error("no iframe document");
-    doc.open();
-    doc.write(html);
-    doc.close();
-    const run = () => {
-      try {
-        frame.contentWindow?.focus();
-        frame.contentWindow?.print();
-      } catch {
-        /* ignore */
-      }
-      window.setTimeout(() => frame.remove(), 1500);
+      "position:fixed;left:-10000px;top:0;width:302px;height:600px;border:0;opacity:0;";
+    frame.srcdoc = html;
+
+    let done = false;
+    const cleanup = () => {
+      if (done) return;
+      done = true;
+      window.setTimeout(() => frame.remove(), 500);
     };
-    if (doc.readyState === "complete") window.setTimeout(run, 60);
-    else frame.onload = () => window.setTimeout(run, 60);
+
+    frame.onload = () => {
+      const win = frame.contentWindow;
+      if (!win) return cleanup();
+      win.onafterprint = cleanup;
+      window.setTimeout(() => {
+        try {
+          win.focus();
+          win.print();
+        } catch {
+          /* ignore */
+        }
+        // Safety net if afterprint never fires (mobile/kiosk browsers).
+        window.setTimeout(cleanup, 60000);
+      }, 250);
+    };
+
+    document.body.appendChild(frame);
     return;
   } catch {
     const w = window.open("", "_blank", "width=380,height=640");
