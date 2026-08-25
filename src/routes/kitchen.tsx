@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { Check, Flame, Printer, Timer } from "lucide-react";
 import { PosShell } from "@/components/pos/PosShell";
 import { selKots, setKotStatus, usePos } from "@/lib/pos/store";
@@ -91,6 +92,12 @@ function Ticket({ kot }: { kot: Kot }) {
 
 function KitchenPage() {
   const kots = usePos(selKots);
+  // keep the "x min ago" labels ticking
+  const [, tick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => tick((n) => n + 1), 30000);
+    return () => clearInterval(id);
+  }, []);
   const active = kots.filter((k) => k.status !== "served");
   const done = kots.filter((k) => k.status === "served").slice(-8).reverse();
 

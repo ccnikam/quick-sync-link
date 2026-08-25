@@ -145,7 +145,7 @@ function PosPage() {
   };
 
   return (
-    <div className="mx-auto grid max-w-[1500px] gap-3 p-3 lg:grid-cols-[minmax(0,300px)_minmax(0,1fr)_minmax(0,360px)] lg:p-5">
+    <div className="mx-auto grid max-w-[1500px] gap-3 p-3 md:grid-cols-[minmax(0,1fr)_minmax(0,340px)] lg:grid-cols-[minmax(0,280px)_minmax(0,1fr)_minmax(0,360px)] lg:p-5">
       {/* Tables */}
       <section className={cn("space-y-2", selected != null && "hidden lg:block")}>
         <h2 className="px-1 text-xs font-bold uppercase tracking-widest text-muted-foreground">
@@ -167,13 +167,13 @@ function PosPage() {
       </section>
 
       {selected == null ? (
-        <section className="hidden place-items-center rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground lg:col-span-2 lg:grid">
+        <section className="hidden place-items-center rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground md:grid lg:col-span-2">
           Select a table to start billing
         </section>
       ) : (
         <>
           {/* Menu */}
-          <section className={cn("space-y-3", mobileTab === "bill" && "hidden lg:block")}>
+          <section className={cn("space-y-3", mobileTab === "bill" && "hidden md:block")}>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setSelected(null)}
@@ -256,7 +256,7 @@ function PosPage() {
           <section
             className={cn(
               "flex flex-col gap-3 rounded-2xl border border-border bg-card p-3 shadow-[var(--shadow-panel)]",
-              mobileTab === "menu" && "hidden lg:flex",
+              mobileTab === "menu" && "hidden md:flex",
             )}
           >
             <div className="flex items-center justify-between">
@@ -384,7 +384,7 @@ function PosPage() {
           </section>
 
           {/* Mobile switcher */}
-          <div className="sticky bottom-3 z-20 flex gap-2 rounded-2xl border border-border bg-card p-1.5 shadow-[var(--shadow-panel)] lg:hidden">
+          <div className="sticky bottom-3 z-20 flex gap-2 rounded-2xl border border-border bg-card p-1.5 shadow-[var(--shadow-panel)] md:hidden">
             <button
               onClick={() => setMobileTab("menu")}
               className={cn(

@@ -125,18 +125,40 @@ export function subscribe(cb: () => void) {
 
 export const getState = () => state;
 
+function shallowEqual(a: unknown, b: unknown): boolean {
+  if (Object.is(a, b)) return true;
+  if (typeof a !== "object" || typeof b !== "object" || a === null || b === null) return false;
+  if (Array.isArray(a) !== Array.isArray(b)) return false;
+  const ka = Object.keys(a as object);
+  const kb = Object.keys(b as object);
+  if (ka.length !== kb.length) return false;
+  return ka.every((k) =>
+    Object.is((a as Record<string, unknown>)[k], (b as Record<string, unknown>)[k]),
+  );
+}
+
 export function usePos<T>(selector: (s: PosState) => T): T {
+
   // Selectors build fresh arrays/objects, so cache per state identity —
   // otherwise getSnapshot returns a new value every call and React loops.
-  const cache = useRef<{ state: PosState; value: T } | null>(null);
+  // The selector itself is also cached: parameterised selectors (e.g.
+  // selTable(id)) change identity when their argument changes.
+  const cache = useRef<{ state: PosState; selector: (s: PosState) => T; value: T } | null>(null);
   const getSnapshot = () => {
-    if (!cache.current || cache.current.state !== state) {
-      cache.current = { state, value: selector(state) };
+    if (!cache.current || cache.current.state !== state || cache.current.selector !== selector) {
+      const next = selector(state);
+      const prev = cache.current;
+      // Keep the previous reference when the value is shallow-equal so
+      // parameterised selectors (new identity each render) can't loop React.
+      const value = prev && shallowEqual(prev.value, next) ? prev.value : next;
+      cache.current = { state, selector, value };
     }
     return cache.current.value;
   };
+
   return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 }
+
 
 
 /* ---------- doc helpers ---------- */
