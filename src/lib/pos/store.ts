@@ -133,10 +133,16 @@ export function usePos<T>(selector: (s: PosState) => T): T {
   const cache = useRef<{ state: PosState; selector: (s: PosState) => T; value: T } | null>(null);
   const getSnapshot = () => {
     if (!cache.current || cache.current.state !== state || cache.current.selector !== selector) {
-      cache.current = { state, selector, value: selector(state) };
+      const next = selector(state);
+      const prev = cache.current;
+      // Keep the previous reference when the value is shallow-equal so
+      // parameterised selectors (new identity each render) can't loop React.
+      const value = prev && shallowEqual(prev.value, next) ? prev.value : next;
+      cache.current = { state, selector, value };
     }
     return cache.current.value;
   };
+
   return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 }
 
