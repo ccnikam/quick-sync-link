@@ -31,7 +31,7 @@ import {
   totals,
   usePos,
 } from "@/lib/pos/store";
-import { printKot } from "@/lib/pos/print";
+import { printBill, printKot } from "@/lib/pos/print";
 import { useSession } from "@/lib/pos/session";
 import type { PaymentMode, PaymentPart, TableDoc } from "@/lib/pos/types";
 import { MODE_LABEL } from "@/lib/pos/print";
@@ -143,15 +143,49 @@ function PosPage() {
     toast.success(`KOT #${kot.no} sent to kitchen`);
   };
 
-  const doSettle = (mode: PaymentMode) => {
-    if (selected == null) return;
-    const bill = settleTable(selected, mode, session?.name);
-    if (!bill) {
+  const [settleOpen, setSettleOpen] = useState(false);
+  const [tender, setTender] = useState<Record<PaymentMode, string>>({
+    cash: "",
+    upi: "",
+    card: "",
+    borrow: "",
+  });
+
+  const openSettle = () => {
+    if (!t || !t.items.length) {
       toast.error("Add items before settling the bill.");
       return;
     }
+    setTender({ cash: String(total), upi: "", card: "", borrow: "" });
+    setSettleOpen(true);
+  };
+
+  const tenderNum = (m: PaymentMode) => {
+    const n = Math.round(Number(tender[m]) || 0);
+    return n > 0 ? n : 0;
+  };
+  const paidSum = (Object.keys(tender) as PaymentMode[]).reduce((s, m) => s + tenderNum(m), 0);
+  const remaining = total - paidSum;
+
+  const fillRemaining = (m: PaymentMode) =>
+    setTender((prev) => ({ ...prev, [m]: String(tenderNum(m) + Math.max(0, remaining)) }));
+
+  const confirmSettle = () => {
+    if (selected == null) return;
+    const payments: PaymentPart[] = (Object.keys(tender) as PaymentMode[])
+      .map((m) => ({ mode: m, amount: tenderNum(m) }))
+      .filter((p) => p.amount > 0);
+    const bill = settleTable(selected, payments, session?.name);
+    if (!bill) {
+      toast.error("Payment amounts must add up to the bill total.");
+      return;
+    }
     printBill(bill);
-    toast.success(`Bill #${bill.no} · ${rupees(bill.total)} — ${mode.toUpperCase()}`);
+    const split = (bill.payments ?? [])
+      .map((p) => `${MODE_LABEL[p.mode]} ${rupees(p.amount)}`)
+      .join(" + ");
+    toast.success(`Bill #${bill.no} · ${rupees(bill.total)} — ${split}`);
+    setSettleOpen(false);
     setSelected(null);
   };
 
