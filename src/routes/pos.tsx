@@ -2,12 +2,16 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import {
   ArrowLeft,
+  Banknote,
   ChefHat,
+  CreditCard,
   Minus,
   Plus,
   Search,
+  Smartphone,
   Trash2,
   Wallet,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { PosShell } from "@/components/pos/PosShell";
@@ -27,9 +31,10 @@ import {
   totals,
   usePos,
 } from "@/lib/pos/store";
-import { printBill, printKot } from "@/lib/pos/print";
+import { printKot } from "@/lib/pos/print";
 import { useSession } from "@/lib/pos/session";
-import type { PaymentMode, TableDoc } from "@/lib/pos/types";
+import type { PaymentMode, PaymentPart, TableDoc } from "@/lib/pos/types";
+import { MODE_LABEL } from "@/lib/pos/print";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/pos")({
