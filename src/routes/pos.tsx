@@ -415,22 +415,10 @@ function PosPage() {
                 <ChefHat className="h-4 w-4" /> Send KOT
               </button>
               <button
-                onClick={() => doSettle("cash")}
+                onClick={openSettle}
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-bold text-primary-foreground transition active:scale-[.98]"
               >
-                <Wallet className="h-4 w-4" /> Cash
-              </button>
-              <button
-                onClick={() => doSettle("upi")}
-                className="rounded-xl bg-success/15 py-2.5 text-sm font-bold text-success transition active:scale-[.98]"
-              >
-                UPI
-              </button>
-              <button
-                onClick={() => doSettle("borrow")}
-                className="rounded-xl bg-warning/25 py-2.5 text-sm font-bold text-warning-foreground transition active:scale-[.98]"
-              >
-                Borrow
+                <Wallet className="h-4 w-4" /> Settle Bill
               </button>
             </div>
           </section>
