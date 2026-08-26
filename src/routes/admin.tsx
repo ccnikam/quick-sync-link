@@ -74,7 +74,11 @@ function AdminPage() {
     start.setHours(0, 0, 0, 0);
     const list = bills.filter((b) => !b.voided && b.createdAt >= start.getTime());
     const sum = (mode: string) =>
-      list.filter((b) => b.mode === mode).reduce((s, b) => s + b.total, 0);
+      list.reduce((s, b) => {
+        if (b.payments?.length)
+          return s + b.payments.filter((p) => p.mode === mode).reduce((x, p) => x + p.amount, 0);
+        return s + (b.mode === mode ? b.total : 0);
+      }, 0);
     return {
       count: list.length,
       total: list.reduce((s, b) => s + b.total, 0),
@@ -200,7 +204,10 @@ function AdminPage() {
             >
               <div className="min-w-0">
                 <div className="truncate text-sm font-semibold">
-                  #{b.no} · Table {b.tableId} · {b.mode.toUpperCase()}
+                  #{b.no} · Table {b.tableId} ·{" "}
+                  {b.payments?.length
+                    ? b.payments.map((p) => `${MODE_LABEL[p.mode]} ${p.amount}`).join(" + ")
+                    : b.mode.toUpperCase()}
                   {b.voided && " · VOID"}
                 </div>
                 <div className="tabular truncate text-[11px] text-muted-foreground">

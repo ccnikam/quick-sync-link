@@ -32,6 +32,8 @@ export type TableDoc = {
 
 export type PaymentMode = "cash" | "upi" | "card" | "borrow";
 
+export type PaymentPart = { mode: PaymentMode; amount: number };
+
 export type Bill = {
   id: string;
   no: number;
@@ -41,7 +43,10 @@ export type Bill = {
   discountPct: number;
   discountAmt: number;
   total: number;
+  /** Primary mode (first payment part) — kept for older bills. */
   mode: PaymentMode;
+  /** Split tender, e.g. [{cash,421},{upi,178}]. Absent on older bills. */
+  payments?: PaymentPart[] | undefined;
   customer?: string | undefined;
   createdAt: number;
   voided?: boolean;

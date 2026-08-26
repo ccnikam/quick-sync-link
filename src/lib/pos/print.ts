@@ -1,4 +1,11 @@
-import { HOTEL, type Bill, type Kot } from "./types";
+import { HOTEL, type Bill, type Kot, type PaymentMode } from "./types";
+
+export const MODE_LABEL: Record<PaymentMode, string> = {
+  cash: "CASH",
+  upi: "UPI",
+  card: "CARD",
+  borrow: "BORROW",
+};
 
 const esc = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -35,13 +42,21 @@ function openPrint(inner: string) {
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${HOTEL.name}</title><style>${CSS}</style></head><body>${inner}</body></html>`;
 
+  const writeInto = (frame: HTMLIFrameElement) => {
+    const doc = frame.contentDocument;
+    if (!doc) return false;
+    doc.open();
+    doc.write(html);
+    doc.close();
+    return true;
+  };
+
   try {
     const frame = document.createElement("iframe");
     frame.setAttribute("aria-hidden", "true");
     // Must be non-zero sized & visible-ish for some mobile browsers to print it.
     frame.style.cssText =
-      "position:fixed;left:-10000px;top:0;width:302px;height:600px;border:0;opacity:0;";
-    frame.srcdoc = html;
+      "position:fixed;left:-10000px;top:0;width:302px;height:600px;border:0;opacity:0.01;";
 
     let done = false;
     const cleanup = () => {
@@ -50,9 +65,14 @@ function openPrint(inner: string) {
       window.setTimeout(() => frame.remove(), 500);
     };
 
-    frame.onload = () => {
+    const trigger = () => {
       const win = frame.contentWindow;
       if (!win) return cleanup();
+      // Some browsers (older Android WebView) ignore srcdoc — if the frame is
+      // empty, write the markup directly instead of printing a blank page.
+      if (!win.document.body || !win.document.body.innerHTML.trim()) {
+        if (!writeInto(frame)) return cleanup();
+      }
       win.onafterprint = cleanup;
       window.setTimeout(() => {
         try {
@@ -66,7 +86,18 @@ function openPrint(inner: string) {
       }, 250);
     };
 
+    // Assign handlers BEFORE setting content so no load event is missed.
+    frame.onload = trigger;
     document.body.appendChild(frame);
+
+    if ("srcdoc" in frame) {
+      frame.srcdoc = html;
+    } else if (writeInto(frame)) {
+      // document.write path fires no load event — trigger manually.
+      window.setTimeout(trigger, 50);
+    } else {
+      cleanup();
+    }
     return;
   } catch {
     const w = window.open("", "_blank", "width=380,height=640");
@@ -112,7 +143,12 @@ export function printBill(bill: Bill) {
       <tr><td>Subtotal</td><td class="amt">${bill.subtotal}</td></tr>
       ${bill.discountAmt ? `<tr><td>Discount (${bill.discountPct}%)</td><td class="amt">-${bill.discountAmt}</td></tr>` : ""}
       <tr class="b big"><td>TOTAL</td><td class="amt">Rs ${bill.total}</td></tr>
-      <tr><td>Payment</td><td class="amt">${bill.mode.toUpperCase()}</td></tr>
+      ${(bill.payments?.length ? bill.payments : [{ mode: bill.mode, amount: bill.total }])
+        .map(
+          (p) =>
+            `<tr><td>Paid ${MODE_LABEL[p.mode]}</td><td class="amt">Rs ${p.amount}</td></tr>`,
+        )
+        .join("")}
     </table>
     <hr/>
     <div class="c">Thank you! Visit again</div>

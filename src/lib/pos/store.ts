@@ -7,7 +7,7 @@ import {
   type DocKind,
   type Kot,
   type OrderLine,
-  type PaymentMode,
+  type PaymentPart,
   type Settings,
   type Staff,
   type StockItem,
@@ -351,11 +351,18 @@ export function setKotStatus(id: string, status: Kot["status"]) {
   writeDoc("kot", id, { ...k, status });
 }
 
-export function settleTable(tableId: number, mode: PaymentMode, settledBy?: string) {
+export function settleTable(
+  tableId: number,
+  payments: PaymentPart[],
+  settledBy?: string,
+) {
   const t = readDoc<TableDoc>("table", String(tableId));
   if (!t || !t.items.length) return null;
+  const parts = payments.filter((p) => p.amount > 0);
   const settings = selSettings(state);
   const { subtotal, discountAmt, total } = totals(t);
+  // Tender must cover the bill exactly (paise-rounded at UI level).
+  if (!parts.length || parts.reduce((s, p) => s + p.amount, 0) !== total) return null;
   const bill: Bill = {
     id: uid(),
     no: settings.billCounter,
@@ -365,7 +372,8 @@ export function settleTable(tableId: number, mode: PaymentMode, settledBy?: stri
     discountPct: t.discountPct,
     discountAmt,
     total,
-    mode,
+    mode: parts[0]!.mode,
+    payments: parts,
     customer: t.customer,
     createdAt: Date.now(),
     settledBy,
