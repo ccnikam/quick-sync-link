@@ -441,9 +441,109 @@ function PosPage() {
                 mobileTab === "bill" ? "bg-primary text-primary-foreground" : "text-muted-foreground",
               )}
             >
-              Bill · {rupees(total)}
+              Bill · {itemCount > 0 ? `${itemCount} items · ` : ""}
+              {rupees(total)}
             </button>
           </div>
+
+          {/* Split-payment settle sheet */}
+          {settleOpen && (
+            <div
+              className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/40 backdrop-blur-[2px] sm:items-center sm:p-4"
+              onClick={() => setSettleOpen(false)}
+            >
+              <div
+                className="w-full max-w-md rounded-t-3xl border border-border bg-card p-4 shadow-[var(--shadow-panel)] sm:rounded-3xl"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="mb-3 flex items-center justify-between">
+                  <div>
+                    <h3 className="font-display text-xl">Settle Table {selected}</h3>
+                    <p className="text-xs text-muted-foreground">
+                      Split the payment across cash, online, card or borrow.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setSettleOpen(false)}
+                    className="grid h-9 w-9 place-items-center rounded-xl bg-muted text-muted-foreground"
+                    aria-label="Close"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+
+                <div className="mb-3 flex items-baseline justify-between rounded-2xl bg-muted/70 px-4 py-3">
+                  <span className="text-sm font-semibold text-muted-foreground">Bill total</span>
+                  <span className="tabular font-display text-2xl text-primary">
+                    {rupees(total)}
+                  </span>
+                </div>
+
+                <div className="space-y-2">
+                  {(
+                    [
+                      ["cash", Banknote, "Cash"],
+                      ["upi", Smartphone, "Online / UPI"],
+                      ["card", CreditCard, "Card"],
+                      ["borrow", Wallet, "Borrow"],
+                    ] as const
+                  ).map(([mode, Icon, label]) => (
+                    <div key={mode} className="flex items-center gap-2">
+                      <span className="inline-flex w-28 shrink-0 items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                        <Icon className="h-3.5 w-3.5" /> {label}
+                      </span>
+                      <input
+                        value={tender[mode]}
+                        onChange={(e) =>
+                          setTender((prev) => ({
+                            ...prev,
+                            [mode]: e.target.value.replace(/[^0-9]/g, ""),
+                          }))
+                        }
+                        inputMode="numeric"
+                        placeholder="0"
+                        className="tabular h-11 min-w-0 flex-1 rounded-xl border border-border bg-background px-3 text-right text-sm font-bold outline-none focus:ring-2 focus:ring-ring"
+                      />
+                      <button
+                        onClick={() => fillRemaining(mode)}
+                        className="shrink-0 rounded-lg bg-secondary px-2.5 py-2 text-[11px] font-bold text-secondary-foreground"
+                      >
+                        Rest
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
+                <div
+                  className={cn(
+                    "mt-3 flex items-center justify-between rounded-xl px-3 py-2 text-sm font-bold",
+                    remaining === 0
+                      ? "bg-success/15 text-success"
+                      : remaining > 0
+                        ? "bg-warning/20 text-warning-foreground"
+                        : "bg-destructive/10 text-destructive",
+                  )}
+                >
+                  <span>
+                    {remaining === 0
+                      ? "Fully paid"
+                      : remaining > 0
+                        ? "Remaining"
+                        : "Over by"}
+                  </span>
+                  <span className="tabular">{rupees(Math.abs(remaining))}</span>
+                </div>
+
+                <button
+                  onClick={confirmSettle}
+                  disabled={remaining !== 0 || total <= 0}
+                  className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-sm font-bold text-primary-foreground transition active:scale-[.98] disabled:opacity-40"
+                >
+                  <Wallet className="h-4 w-4" /> Confirm &amp; Print Bill
+                </button>
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>
