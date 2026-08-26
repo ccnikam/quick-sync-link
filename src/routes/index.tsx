@@ -62,9 +62,11 @@ function LoginPage() {
 
   const press = (d: string) => {
     setError("");
-    const next = (pin + d).slice(0, 4);
-    setPin(next);
-    if (next.length === 4) setTimeout(() => submit(next), 120);
+    setPin((p) => {
+      const next = (p + d).slice(0, 4);
+      if (next.length === 4) setTimeout(() => submit(next), 120);
+      return next;
+    });
   };
 
   return (

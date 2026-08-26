@@ -7,7 +7,7 @@ import {
   type DocKind,
   type Kot,
   type OrderLine,
-  type PaymentMode,
+  type PaymentPart,
   type Settings,
   type Staff,
   type StockItem,
