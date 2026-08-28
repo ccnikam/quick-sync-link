@@ -17,7 +17,7 @@ import {
   usePos,
   voidBill,
 } from "@/lib/pos/store";
-import { printBill } from "@/lib/pos/print";
+import { MODE_LABEL, printBill } from "@/lib/pos/print";
 import type { Role, Staff } from "@/lib/pos/types";
 import { cn } from "@/lib/utils";
 
