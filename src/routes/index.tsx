@@ -33,16 +33,41 @@ const ROLE_LABEL: Record<Role, string> = {
   helper: "Helper",
 };
 
+function Splash() {
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 bg-sidebar px-6 text-center text-sidebar-foreground">
+      <div className="grid h-16 w-16 animate-pulse place-items-center rounded-3xl bg-sidebar-primary text-sidebar-primary-foreground">
+        <Utensils className="h-7 w-7" />
+      </div>
+      <div>
+        <p className="mb-2 text-[10px] font-bold uppercase tracking-[.28em] text-sidebar-primary">
+          {HOTEL.sub}
+        </p>
+        <h1 className="font-display text-3xl leading-tight sm:text-5xl">
+          Welcome to Hotel Kusum Palace Family
+        </h1>
+        <p className="mt-3 text-sm text-sidebar-foreground/60">{HOTEL.tagline}</p>
+      </div>
+      <div className="h-1 w-40 overflow-hidden rounded-full bg-sidebar-accent">
+        <div className="h-full w-full origin-left animate-[splash-bar_4.5s_linear_forwards] bg-sidebar-primary" />
+      </div>
+    </div>
+  );
+}
+
 function LoginPage() {
   const navigate = useNavigate();
   const staff = usePos(selStaff);
   const { session, ready } = useSession();
   const [pin, setPin] = useState("");
   const [error, setError] = useState("");
+  const [booting, setBooting] = useState(true);
 
   useEffect(() => {
     hydrate();
     loadSession();
+    const t = setTimeout(() => setBooting(false), 4500);
+    return () => clearTimeout(t);
   }, []);
 
   useEffect(() => {
@@ -63,11 +88,15 @@ function LoginPage() {
   const press = (d: string) => {
     setError("");
     setPin((p) => {
-      const next = (p + d).slice(0, 4);
+      if (p.length >= 4) return p;
+      const next = p + d;
       if (next.length === 4) setTimeout(() => submit(next), 120);
       return next;
     });
   };
+
+  if (booting) return <Splash />;
+
 
   return (
     <div className="flex min-h-[100dvh] bg-background">
