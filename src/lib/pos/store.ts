@@ -483,7 +483,29 @@ export function mergeRemote(remote: Doc[], cursor: string | null) {
   for (const r of remote) {
     const k = docKey(r.kind, r.id);
     const local = docs[k];
-    if (!local || local.updatedAt <= r.updatedAt) docs[k] = r;
+
+    if (r.kind === "settings") {
+      // Settings are shared, but pairing flags stay device-local and
+      // counters must never move backwards on any device.
+      const l = (local?.data as Settings | undefined) ?? selSettings(state);
+      const rem = (r.data as Settings | undefined) ?? l;
+      docs[k] = {
+        ...r,
+        updatedAt: Math.max(local?.updatedAt ?? 0, r.updatedAt),
+        data: {
+          ...rem,
+          shopKey: l.shopKey,
+          syncEnabled: l.syncEnabled,
+          billCounter: Math.max(l.billCounter ?? 1, rem.billCounter ?? 1),
+          kotCounter: Math.max(l.kotCounter ?? 1, rem.kotCounter ?? 1),
+        } satisfies Settings,
+      };
+      continue;
+    }
+
+    // Local edits waiting to upload win over an older remote copy.
+    if (state.dirty.includes(k) && local && local.updatedAt >= r.updatedAt) continue;
+    if (!local || local.updatedAt < r.updatedAt) docs[k] = r;
   }
   set({ docs, cursor, lastSync: Date.now() });
 }
