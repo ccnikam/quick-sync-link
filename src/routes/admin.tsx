@@ -351,3 +351,192 @@ function StaffTab({ staff }: { staff: Staff[] }) {
     </div>
   );
 }
+
+function Inventory() {
+  const stock = usePos(selStock);
+  const [q, setQ] = useState("");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [draft, setDraft] = useState({ name: "", qty: "0", min: "5" });
+
+  const filtered = useMemo(() => {
+    const needle = q.trim().toLowerCase();
+    return needle ? stock.filter((s) => s.name.toLowerCase().includes(needle)) : stock;
+  }, [stock, q]);
+
+  const selected = stock.find((s) => s.id === selectedId) ?? null;
+
+  return (
+    <div className="grid gap-3 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:items-start">
+      {/* list pane */}
+      <div className="space-y-2 rounded-2xl border border-border bg-card p-3 shadow-[var(--shadow-card)]">
+        <div className="flex gap-2">
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Search inventory…"
+            className="h-10 min-w-0 flex-1 rounded-xl border border-border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
+          />
+          <button
+            onClick={() => {
+              setSelectedId(null);
+              setDraft({ name: q.trim(), qty: "0", min: "5" });
+            }}
+            className="h-10 shrink-0 rounded-xl bg-primary px-3 text-sm font-bold text-primary-foreground active:scale-[.98]"
+          >
+            <span className="flex items-center gap-1">
+              <Plus className="h-4 w-4" /> New
+            </span>
+          </button>
+        </div>
+
+        <div className="max-h-[58vh] space-y-1.5 overflow-y-auto pr-0.5">
+          {filtered.length === 0 && (
+            <p className="p-6 text-center text-sm text-muted-foreground">No items found.</p>
+          )}
+          {filtered.map((s) => (
+            <button
+              key={s.id}
+              onClick={() => {
+                setSelectedId(s.id);
+                setDraft({ name: s.name, qty: String(s.qty), min: String(s.min) });
+              }}
+              className={cn(
+                "grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-xl border p-2.5 text-left transition",
+                s.id === selectedId
+                  ? "border-primary bg-primary/10"
+                  : "border-border bg-background hover:bg-muted/60",
+              )}
+            >
+              <div className="min-w-0">
+                <div className="truncate text-sm font-semibold">{s.name}</div>
+                <div className="text-[11px] text-muted-foreground">min {s.min}</div>
+              </div>
+              <span
+                className={cn(
+                  "tabular rounded-full px-2.5 py-1 text-xs font-bold",
+                  s.qty <= 0
+                    ? "bg-destructive/10 text-destructive"
+                    : s.qty <= s.min
+                      ? "bg-warning/25 text-warning-foreground"
+                      : "bg-muted text-foreground",
+                )}
+              >
+                {s.qty}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* editor pane */}
+      <div className="space-y-3 rounded-2xl border border-border bg-card p-3 shadow-[var(--shadow-card)] lg:sticky lg:top-3">
+        <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+          {selected ? `Edit · ${selected.name}` : "Add new item"}
+        </h2>
+
+        <label className="block space-y-1">
+          <span className="text-[11px] font-semibold text-muted-foreground">Item name</span>
+          <input
+            value={draft.name}
+            onChange={(e) => setDraft({ ...draft, name: e.target.value })}
+            placeholder="e.g. Paneer (kg)"
+            className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
+          />
+        </label>
+
+        <div className="grid grid-cols-2 gap-2">
+          <label className="block space-y-1">
+            <span className="text-[11px] font-semibold text-muted-foreground">Quantity</span>
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() =>
+                  setDraft((d) => ({ ...d, qty: String(Math.max(0, (Number(d.qty) || 0) - 1)) }))
+                }
+                className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-muted"
+                aria-label="Reduce quantity"
+              >
+                <Minus className="h-4 w-4" />
+              </button>
+              <input
+                type="number"
+                inputMode="numeric"
+                value={draft.qty}
+                onChange={(e) => setDraft({ ...draft, qty: e.target.value })}
+                className="tabular h-10 w-full min-w-0 rounded-xl border border-border bg-background text-center text-sm font-bold outline-none focus:ring-2 focus:ring-ring"
+              />
+              <button
+                onClick={() => setDraft((d) => ({ ...d, qty: String((Number(d.qty) || 0) + 1) }))}
+                className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-muted"
+                aria-label="Add quantity"
+              >
+                <Plus className="h-4 w-4" />
+              </button>
+            </div>
+          </label>
+          <label className="block space-y-1">
+            <span className="text-[11px] font-semibold text-muted-foreground">Low-stock alert at</span>
+            <input
+              type="number"
+              inputMode="numeric"
+              value={draft.min}
+              onChange={(e) => setDraft({ ...draft, min: e.target.value })}
+              className="tabular h-10 w-full rounded-xl border border-border bg-background px-3 text-center text-sm font-bold outline-none focus:ring-2 focus:ring-ring"
+            />
+          </label>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => {
+              const name = draft.name.trim();
+              const qty = Math.max(0, Number(draft.qty) || 0);
+              const min = Math.max(0, Number(draft.min) || 0);
+              if (!name) {
+                toast.error("Enter an item name.");
+                return;
+              }
+              if (selected) {
+                adjustStock(selected.id, { name, qty, min });
+                toast.success("Item updated");
+              } else {
+                const created = createStock(name, qty, min);
+                if (!created) return;
+                adjustStock(created.id, { qty, min });
+                setSelectedId(created.id);
+                toast.success("Item added");
+              }
+            }}
+            className="h-10 flex-1 rounded-xl bg-primary px-5 text-sm font-bold text-primary-foreground active:scale-[.98]"
+          >
+            {selected ? "Save changes" : "Add item"}
+          </button>
+          {selected && (
+            <>
+              <button
+                onClick={() => {
+                  setSelectedId(null);
+                  setDraft({ name: "", qty: "0", min: "5" });
+                }}
+                className="h-10 rounded-xl bg-secondary px-4 text-sm font-bold text-secondary-foreground"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  deleteStock(selected.id);
+                  setSelectedId(null);
+                  setDraft({ name: "", qty: "0", min: "5" });
+                  toast.success("Item removed");
+                }}
+                className="grid h-10 w-10 place-items-center rounded-xl bg-destructive/10 text-destructive"
+                aria-label="Delete item"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
