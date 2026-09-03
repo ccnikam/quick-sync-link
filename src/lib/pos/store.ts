@@ -407,6 +407,31 @@ export function adjustStock(id: string, patch: Partial<StockItem>) {
   writeDoc("stock", id, { ...s, ...patch });
 }
 
+/** Create a stock item that is not part of the fixed menu catalogue. */
+export function createStock(name: string, qty = 0, min = 5) {
+  const clean = name.trim();
+  if (!clean) return null;
+  const existing = list<StockItem>("stock").find(
+    (s) => s.name.toLowerCase() === clean.toLowerCase(),
+  );
+  if (existing) return existing;
+  const item: StockItem = {
+    id: `custom-${uid()}`,
+    name: clean,
+    qty: Math.max(0, Math.round(qty)),
+    min: Math.max(0, Math.round(min)),
+  };
+  writeDoc("stock", item.id, item);
+  return item;
+}
+
+export function deleteStock(id: string) {
+  const s = readDoc<StockItem>("stock", id);
+  if (!s) return;
+  writeDoc("stock", id, s, true);
+}
+
+
 export function saveStaff(staff: Staff) {
   writeDoc("staff", staff.id, staff);
 }
