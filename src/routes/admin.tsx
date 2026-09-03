@@ -148,44 +148,8 @@ function AdminPage() {
         </div>
       )}
 
-      {tab === "Stock" && (
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {stock.map((s) => (
-            <div
-              key={s.id}
-              className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-2xl border border-border bg-card p-3 shadow-[var(--shadow-card)]"
-            >
-              <div className="min-w-0">
-                <div className="truncate text-sm font-semibold">{s.name}</div>
-                <div className="text-[11px] text-muted-foreground">min {s.min}</div>
-              </div>
-              <div className="flex shrink-0 items-center gap-1.5">
-                <button
-                  onClick={() => adjustStock(s.id, { qty: Math.max(0, s.qty - 1) })}
-                  className="grid h-8 w-8 place-items-center rounded-lg bg-muted"
-                  aria-label={`Reduce ${s.name}`}
-                >
-                  <Minus className="h-3.5 w-3.5" />
-                </button>
-                <input
-                  type="number"
-                  inputMode="numeric"
-                  value={s.qty}
-                  onChange={(e) => adjustStock(s.id, { qty: Math.max(0, Number(e.target.value) || 0) })}
-                  className="tabular h-8 w-14 rounded-lg border border-border bg-background text-center text-sm font-bold outline-none focus:ring-2 focus:ring-ring"
-                />
-                <button
-                  onClick={() => adjustStock(s.id, { qty: s.qty + 1 })}
-                  className="grid h-8 w-8 place-items-center rounded-lg bg-muted"
-                  aria-label={`Add ${s.name}`}
-                >
-                  <Plus className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      {tab === "Stock" && <Inventory />}
+
 
       {tab === "Bills" && (
         <div className="space-y-2">
