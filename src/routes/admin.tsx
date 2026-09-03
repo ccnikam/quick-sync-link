@@ -6,6 +6,9 @@ import { PosShell } from "@/components/pos/PosShell";
 import { rupees } from "@/lib/pos/menu";
 import {
   adjustStock,
+  createStock,
+  deleteStock,
+
   removeStaff,
   resetPos,
   saveStaff,
