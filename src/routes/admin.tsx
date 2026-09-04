@@ -70,7 +70,7 @@ function AdminPage() {
   const bills = usePos(selBills);
   const stock = usePos(selStock);
   const staff = usePos(selStaff);
-  const settings = usePos(selSettings);
+  
 
   const today = useMemo(() => {
     const start = new Date();
