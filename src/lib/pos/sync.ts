@@ -74,13 +74,22 @@ export async function syncNow() {
 
 export function startSync() {
   if (typeof window === "undefined" || timer) return;
-  const online = () => setSyncFlags({ online: navigator.onLine });
+  const online = () => {
+    setSyncFlags({ online: navigator.onLine });
+    // Push everything queued while offline as soon as the link is back.
+    if (navigator.onLine) void syncNow();
+  };
   window.addEventListener("online", online);
   window.addEventListener("offline", online);
+  window.addEventListener("focus", online);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") online();
+  });
   online();
   timer = setInterval(() => void syncNow(), 4000);
   void syncNow();
 }
+
 
 export function stopSync() {
   if (timer) clearInterval(timer);
