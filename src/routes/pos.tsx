@@ -334,54 +334,59 @@ function PosPage() {
               className="h-9 w-full rounded-xl border border-border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
             />
 
-            <div className="max-h-[38vh] space-y-1.5 overflow-y-auto lg:max-h-[46vh]">
+            <div className="-mx-1 max-h-[38vh] space-y-1.5 overflow-y-auto px-1 lg:max-h-[46vh]">
               {(t?.items ?? []).length === 0 && (
                 <p className="py-6 text-center text-sm text-muted-foreground">No items yet</p>
               )}
               {(t?.items ?? []).map((l) => (
-                <div
-                  key={l.lineId}
-                  className="flex items-center gap-2 rounded-xl bg-muted/60 px-2.5 py-2"
-                >
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-semibold">{l.name}</div>
-                    <div className="tabular text-[11px] text-muted-foreground">
-                      {rupees(l.price)} {l.kotSent && "· sent"}
+                <div key={l.lineId} className="rounded-xl bg-muted/60 px-2.5 py-2">
+                  <div className="flex items-start gap-2">
+                    <div className="min-w-0 flex-1">
+                      <div className="text-sm font-semibold leading-tight">{l.name}</div>
+                      <div className="tabular text-[11px] text-muted-foreground">
+                        {rupees(l.price)} × {l.qty}
+                        {l.kotSent && " · sent"}
+                      </div>
                     </div>
+                    <span className="tabular shrink-0 text-sm font-bold">
+                      {rupees(l.price * l.qty)}
+                    </span>
                   </div>
-                  <button
-                    onClick={() => setQty(selected, l.lineId, l.qty - 1)}
-                    className="grid h-7 w-7 place-items-center rounded-lg bg-card"
-                  >
-                    <Minus className="h-3.5 w-3.5" />
-                  </button>
-                  <span className="tabular w-6 text-center text-sm font-bold">{l.qty}</span>
-                  <button
-                    onClick={() => setQty(selected, l.lineId, l.qty + 1)}
-                    className="grid h-7 w-7 place-items-center rounded-lg bg-card"
-                  >
-                    <Plus className="h-3.5 w-3.5" />
-                  </button>
-                  <span className="tabular w-14 text-right text-sm font-bold">
-                    {rupees(l.price * l.qty)}
-                  </span>
-                  <button
-                    onClick={() => removeLine(selected, l.lineId)}
-                    className="grid h-7 w-7 place-items-center rounded-lg text-destructive"
-                    aria-label="Remove"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
+                  <div className="mt-2 flex items-center gap-2">
+                    <button
+                      onClick={() => setQty(selected, l.lineId, l.qty - 1)}
+                      className="grid h-8 w-8 place-items-center rounded-lg bg-card active:scale-95"
+                      aria-label="Decrease quantity"
+                    >
+                      <Minus className="h-4 w-4" />
+                    </button>
+                    <span className="tabular w-7 text-center text-sm font-bold">{l.qty}</span>
+                    <button
+                      onClick={() => setQty(selected, l.lineId, l.qty + 1)}
+                      className="grid h-8 w-8 place-items-center rounded-lg bg-card active:scale-95"
+                      aria-label="Increase quantity"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => removeLine(selected, l.lineId)}
+                      className="ml-auto grid h-8 w-8 place-items-center rounded-lg bg-destructive/10 text-destructive active:scale-95"
+                      aria-label="Remove item"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
+
 
             <div className="space-y-1.5 border-t border-border pt-3 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Subtotal</span>
                 <span className="tabular font-semibold">{rupees(subtotal)}</span>
               </div>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1.5">
                 <span className="text-muted-foreground">Discount %</span>
                 <div className="flex items-center gap-1.5">
                   {[0, 5, 10, 20].map((p) => (
@@ -389,7 +394,7 @@ function PosPage() {
                       key={p}
                       onClick={() => setDiscount(selected, p)}
                       className={cn(
-                        "rounded-md px-2 py-0.5 text-xs font-bold",
+                        "min-w-8 rounded-md px-2 py-1 text-xs font-bold",
                         (t?.discountPct ?? 0) === p
                           ? "bg-primary text-primary-foreground"
                           : "bg-secondary text-secondary-foreground",
@@ -401,6 +406,7 @@ function PosPage() {
                   <span className="tabular w-16 text-right font-semibold">-{rupees(discountAmt)}</span>
                 </div>
               </div>
+
               <div className="flex items-baseline justify-between border-t border-border pt-2">
                 <span className="font-display text-lg">Total</span>
                 <span className="tabular font-display text-2xl text-primary">{rupees(total)}</span>
@@ -489,28 +495,34 @@ function PosPage() {
                     ] as const
                   ).map(([mode, Icon, label]) => (
                     <div key={mode} className="flex items-center gap-2">
-                      <span className="inline-flex w-28 shrink-0 items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-muted-foreground">
-                        <Icon className="h-3.5 w-3.5" /> {label}
+                      <span className="inline-flex w-[86px] shrink-0 items-center gap-1.5 text-[11px] font-bold uppercase leading-tight tracking-wide text-muted-foreground sm:w-28 sm:text-xs">
+                        <Icon className="h-3.5 w-3.5 shrink-0" /> {label}
                       </span>
-                      <input
-                        value={tender[mode]}
-                        onChange={(e) =>
-                          setTender((prev) => ({
-                            ...prev,
-                            [mode]: e.target.value.replace(/[^0-9]/g, ""),
-                          }))
-                        }
-                        inputMode="numeric"
-                        placeholder="0"
-                        className="tabular h-11 min-w-0 flex-1 rounded-xl border border-border bg-background px-3 text-right text-sm font-bold outline-none focus:ring-2 focus:ring-ring"
-                      />
+                      <div className="relative min-w-0 flex-1">
+                        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-muted-foreground">
+                          ₹
+                        </span>
+                        <input
+                          value={tender[mode]}
+                          onChange={(e) =>
+                            setTender((prev) => ({
+                              ...prev,
+                              [mode]: e.target.value.replace(/[^0-9]/g, ""),
+                            }))
+                          }
+                          inputMode="numeric"
+                          placeholder="0"
+                          className="tabular h-11 w-full rounded-xl border border-border bg-background pl-7 pr-3 text-right text-sm font-bold outline-none focus:ring-2 focus:ring-ring"
+                        />
+                      </div>
                       <button
                         onClick={() => fillRemaining(mode)}
-                        className="shrink-0 rounded-lg bg-secondary px-2.5 py-2 text-[11px] font-bold text-secondary-foreground"
+                        className="h-11 shrink-0 rounded-lg bg-secondary px-2.5 text-[11px] font-bold text-secondary-foreground active:scale-95"
                       >
                         Rest
                       </button>
                     </div>
+
                   ))}
                 </div>
 
