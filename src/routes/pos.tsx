@@ -495,28 +495,34 @@ function PosPage() {
                     ] as const
                   ).map(([mode, Icon, label]) => (
                     <div key={mode} className="flex items-center gap-2">
-                      <span className="inline-flex w-28 shrink-0 items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-muted-foreground">
-                        <Icon className="h-3.5 w-3.5" /> {label}
+                      <span className="inline-flex w-[86px] shrink-0 items-center gap-1.5 text-[11px] font-bold uppercase leading-tight tracking-wide text-muted-foreground sm:w-28 sm:text-xs">
+                        <Icon className="h-3.5 w-3.5 shrink-0" /> {label}
                       </span>
-                      <input
-                        value={tender[mode]}
-                        onChange={(e) =>
-                          setTender((prev) => ({
-                            ...prev,
-                            [mode]: e.target.value.replace(/[^0-9]/g, ""),
-                          }))
-                        }
-                        inputMode="numeric"
-                        placeholder="0"
-                        className="tabular h-11 min-w-0 flex-1 rounded-xl border border-border bg-background px-3 text-right text-sm font-bold outline-none focus:ring-2 focus:ring-ring"
-                      />
+                      <div className="relative min-w-0 flex-1">
+                        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-muted-foreground">
+                          ₹
+                        </span>
+                        <input
+                          value={tender[mode]}
+                          onChange={(e) =>
+                            setTender((prev) => ({
+                              ...prev,
+                              [mode]: e.target.value.replace(/[^0-9]/g, ""),
+                            }))
+                          }
+                          inputMode="numeric"
+                          placeholder="0"
+                          className="tabular h-11 w-full rounded-xl border border-border bg-background pl-7 pr-3 text-right text-sm font-bold outline-none focus:ring-2 focus:ring-ring"
+                        />
+                      </div>
                       <button
                         onClick={() => fillRemaining(mode)}
-                        className="shrink-0 rounded-lg bg-secondary px-2.5 py-2 text-[11px] font-bold text-secondary-foreground"
+                        className="h-11 shrink-0 rounded-lg bg-secondary px-2.5 text-[11px] font-bold text-secondary-foreground active:scale-95"
                       >
                         Rest
                       </button>
                     </div>
+
                   ))}
                 </div>
 
