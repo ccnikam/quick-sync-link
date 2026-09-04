@@ -386,7 +386,7 @@ function PosPage() {
                 <span className="text-muted-foreground">Subtotal</span>
                 <span className="tabular font-semibold">{rupees(subtotal)}</span>
               </div>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1.5">
                 <span className="text-muted-foreground">Discount %</span>
                 <div className="flex items-center gap-1.5">
                   {[0, 5, 10, 20].map((p) => (
@@ -394,7 +394,7 @@ function PosPage() {
                       key={p}
                       onClick={() => setDiscount(selected, p)}
                       className={cn(
-                        "rounded-md px-2 py-0.5 text-xs font-bold",
+                        "min-w-8 rounded-md px-2 py-1 text-xs font-bold",
                         (t?.discountPct ?? 0) === p
                           ? "bg-primary text-primary-foreground"
                           : "bg-secondary text-secondary-foreground",
@@ -406,6 +406,7 @@ function PosPage() {
                   <span className="tabular w-16 text-right font-semibold">-{rupees(discountAmt)}</span>
                 </div>
               </div>
+
               <div className="flex items-baseline justify-between border-t border-border pt-2">
                 <span className="font-display text-lg">Total</span>
                 <span className="tabular font-display text-2xl text-primary">{rupees(total)}</span>
