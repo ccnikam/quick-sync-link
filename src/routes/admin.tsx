@@ -213,31 +213,10 @@ function AdminPage() {
 
       {tab === "Staff" && <StaffTab staff={staff} />}
 
+      {tab === "Devices" && <DevicesTab />}
       {tab === "Devices" && (
-        <div className="space-y-3">
-          <div className="space-y-2 rounded-2xl border border-border bg-card p-4 shadow-[var(--shadow-card)]">
-            <h2 className="font-display text-lg">Pair another device</h2>
-            <p className="text-sm text-muted-foreground">
-              Enter the same shop key on every phone, tablet or counter PC. They then share tables,
-              bills and kitchen tickets automatically whenever there is internet — and keep working
-              on their own when there isn&apos;t.
-            </p>
-            <input
-              value={settings.shopKey ?? ""}
-              onChange={(e) => updateSettings({ shopKey: e.target.value.trim() || null })}
-              placeholder="shop key (e.g. kusum-palace-2026)"
-              className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
-            />
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={settings.syncEnabled}
-                onChange={(e) => updateSettings({ syncEnabled: e.target.checked })}
-                className="h-4 w-4 accent-[var(--primary)]"
-              />
-              Sync with other devices when online
-            </label>
-          </div>
+        <div className="mt-3 space-y-3">
+
 
           <div className="space-y-2 rounded-2xl border border-destructive/40 bg-destructive/5 p-4">
             <h2 className="font-display text-lg text-destructive">Danger zone</h2>
