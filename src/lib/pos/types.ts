@@ -107,7 +107,7 @@ export type Settings = {
   allowNegativeStock: boolean;
 };
 
-export type DocKind = "table" | "bill" | "kot" | "stock" | "staff" | "settings";
+export type DocKind = "table" | "bill" | "kot" | "stock" | "staff" | "settings" | "task";
 
 export type Doc = {
   kind: DocKind;
