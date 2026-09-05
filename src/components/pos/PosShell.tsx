@@ -24,10 +24,14 @@ export function usePosBoot() {
   }, []);
 }
 
+const ALL_ROLES: Role[] = ["owner", "manager", "cook", "waiter", "helper"];
+
 const NAV: { to: string; label: string; icon: typeof LayoutGrid; roles: Role[] }[] = [
-  { to: "/pos", label: "Billing", icon: LayoutGrid, roles: ["owner", "cashier"] },
-  { to: "/kitchen", label: "Kitchen", icon: ChefHat, roles: ["owner", "cashier", "cook"] },
-  { to: "/waiter", label: "Service", icon: Utensils, roles: ["owner", "cashier", "waiter", "helper"] },
+  { to: "/pos", label: "Billing", icon: LayoutGrid, roles: ["owner", "manager"] },
+  { to: "/kitchen", label: "Kitchen", icon: ChefHat, roles: ["owner", "manager", "cook"] },
+  { to: "/waiter", label: "Service", icon: Utensils, roles: ["owner", "manager", "waiter"] },
+  { to: "/tasks", label: "Tasks", icon: ClipboardList, roles: ALL_ROLES },
+  { to: "/devices", label: "Device sync", icon: Smartphone, roles: ALL_ROLES },
   { to: "/admin", label: "Manage", icon: Settings2, roles: ["owner"] },
 ];
 

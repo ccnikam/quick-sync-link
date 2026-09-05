@@ -14,6 +14,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as DevicesRouteImport } from './routes/devices'
 import { Route as KitchenRouteImport } from './routes/kitchen'
 import { Route as PosRouteImport } from './routes/pos'
+import { Route as TasksRouteImport } from './routes/tasks'
 import { Route as WaiterRouteImport } from './routes/waiter'
 
 const IndexRoute = IndexRouteImport.update({
@@ -41,6 +42,11 @@ const PosRoute = PosRouteImport.update({
   path: '/pos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TasksRoute = TasksRouteImport.update({
+  id: '/tasks',
+  path: '/tasks',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WaiterRoute = WaiterRouteImport.update({
   id: '/waiter',
   path: '/waiter',
@@ -53,6 +59,7 @@ export interface FileRoutesByFullPath {
   '/devices': typeof DevicesRoute
   '/kitchen': typeof KitchenRoute
   '/pos': typeof PosRoute
+  '/tasks': typeof TasksRoute
   '/waiter': typeof WaiterRoute
 }
 export interface FileRoutesByTo {
@@ -61,6 +68,7 @@ export interface FileRoutesByTo {
   '/devices': typeof DevicesRoute
   '/kitchen': typeof KitchenRoute
   '/pos': typeof PosRoute
+  '/tasks': typeof TasksRoute
   '/waiter': typeof WaiterRoute
 }
 export interface FileRoutesById {
@@ -70,14 +78,24 @@ export interface FileRoutesById {
   '/devices': typeof DevicesRoute
   '/kitchen': typeof KitchenRoute
   '/pos': typeof PosRoute
+  '/tasks': typeof TasksRoute
   '/waiter': typeof WaiterRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/devices' | '/kitchen' | '/pos' | '/waiter'
+  fullPaths:
+    '/' | '/admin' | '/devices' | '/kitchen' | '/pos' | '/tasks' | '/waiter'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/devices' | '/kitchen' | '/pos' | '/waiter'
-  id: '__root__' | '/' | '/admin' | '/devices' | '/kitchen' | '/pos' | '/waiter'
+  to: '/' | '/admin' | '/devices' | '/kitchen' | '/pos' | '/tasks' | '/waiter'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/devices'
+    | '/kitchen'
+    | '/pos'
+    | '/tasks'
+    | '/waiter'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -86,6 +104,7 @@ export interface RootRouteChildren {
   DevicesRoute: typeof DevicesRoute
   KitchenRoute: typeof KitchenRoute
   PosRoute: typeof PosRoute
+  TasksRoute: typeof TasksRoute
   WaiterRoute: typeof WaiterRoute
 }
 
@@ -126,6 +145,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tasks': {
+      id: '/tasks'
+      path: '/tasks'
+      fullPath: '/tasks'
+      preLoaderRoute: typeof TasksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/waiter': {
       id: '/waiter'
       path: '/waiter'
@@ -142,6 +168,7 @@ const rootRouteChildren: RootRouteChildren = {
   DevicesRoute: DevicesRoute,
   KitchenRoute: KitchenRoute,
   PosRoute: PosRoute,
+  TasksRoute: TasksRoute,
   WaiterRoute: WaiterRoute,
 }
 export const routeTree = rootRouteImport
