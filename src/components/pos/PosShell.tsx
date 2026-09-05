@@ -2,12 +2,14 @@ import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 import {
   ChefHat,
+  ClipboardList,
   CloudOff,
   Cloud,
   LayoutGrid,
   LogOut,
   RefreshCw,
   Settings2,
+  Smartphone,
   Utensils,
 } from "lucide-react";
 import { hydrate, selSync, usePos } from "@/lib/pos/store";
