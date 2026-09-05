@@ -2,19 +2,16 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import {
   AlertTriangle,
-  Copy,
-  KeyRound,
-  Link2,
   Minus,
   Plus,
   Printer,
-  RefreshCw,
   RotateCcw,
   Trash2,
   Users,
 } from "lucide-react";
 import { toast } from "sonner";
 import { PosShell } from "@/components/pos/PosShell";
+import { DevicePairing } from "@/components/pos/DevicePairing";
 import { rupees } from "@/lib/pos/menu";
 import {
   adjustStock,
@@ -25,16 +22,12 @@ import {
   resetPos,
   saveStaff,
   selBills,
-  selSettings,
   selStaff,
   selStock,
-  selSync,
-  updateSettings,
   usePos,
   voidBill,
 } from "@/lib/pos/store";
 import { MODE_LABEL, printBill } from "@/lib/pos/print";
-import { isValidShopKey, newShopKey, syncNow } from "@/lib/pos/sync";
 import type { Role, Staff } from "@/lib/pos/types";
 import { cn } from "@/lib/utils";
 
