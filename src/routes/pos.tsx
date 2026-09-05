@@ -51,7 +51,7 @@ export const Route = createFileRoute("/pos")({
     ],
   }),
   component: () => (
-    <PosShell allow={["owner", "cashier"]}>
+    <PosShell allow={["owner", "manager"]}>
       <PosPage />
     </PosShell>
   ),

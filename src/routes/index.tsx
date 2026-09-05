@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Delete, LogIn, Utensils } from "lucide-react";
 import { hydrate, selStaff, usePos } from "@/lib/pos/store";
 import { homeFor, loadSession, signIn, useSession } from "@/lib/pos/session";
-import { HOTEL, type Role } from "@/lib/pos/types";
+import { HOTEL, ROLE_LABEL } from "@/lib/pos/types";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({
@@ -24,14 +24,6 @@ export const Route = createFileRoute("/")({
   }),
   component: LoginPage,
 });
-
-const ROLE_LABEL: Record<Role, string> = {
-  owner: "Owner",
-  cashier: "Cashier",
-  cook: "Kitchen",
-  waiter: "Waiter",
-  helper: "Helper",
-};
 
 function Splash() {
   return (

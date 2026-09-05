@@ -10,6 +10,7 @@ import {
   type PaymentPart,
   type Settings,
   type Staff,
+  type Task,
   type StockItem,
   type TableDoc,
 } from "./types";
@@ -48,7 +49,7 @@ function defaultDocs(): Record<string, Doc> {
   }
   const staff: Staff[] = [
     { id: "owner", name: "Owner", role: "owner", pin: "1111" },
-    { id: "cashier", name: "Cashier", role: "cashier", pin: "2222" },
+    { id: "manager", name: "Manager", role: "manager", pin: "2222" },
     { id: "cook", name: "Cook", role: "cook", pin: "3333" },
     { id: "waiter", name: "Waiter", role: "waiter", pin: "4444" },
     { id: "helper", name: "Helper", role: "helper", pin: "5555" },
@@ -114,6 +115,18 @@ export function hydrate() {
     }
   } catch {
     /* ignore corrupt state */
+  }
+  // "Cashier" was renamed to "Manager" — migrate any saved staff rows.
+  if (loaded.docs) {
+    for (const [k, d] of Object.entries(loaded.docs)) {
+      const staff = d.data as Staff | undefined;
+      if (d.kind === "staff" && staff && (staff.role as string) === "cashier") {
+        loaded.docs[k] = {
+          ...d,
+          data: { ...staff, role: "manager", name: staff.name === "Cashier" ? "Manager" : staff.name },
+        };
+      }
+    }
   }
   set({ ...loaded, hydrated: true, online: navigator.onLine }, false);
 }
@@ -214,6 +227,12 @@ export const selStaff = (s: PosState): Staff[] =>
   Object.values(s.docs)
     .filter((d) => d.kind === "staff" && !d.deleted)
     .map((d) => d.data as Staff);
+
+export const selTasks = (s: PosState): Task[] =>
+  Object.values(s.docs)
+    .filter((d) => d.kind === "task" && !d.deleted)
+    .map((d) => d.data as Task)
+    .sort((a, b) => b.createdAt - a.createdAt);
 
 export const selSettings = (s: PosState): Settings =>
   (s.docs[docKey("settings", "app")]?.data as Settings) ?? {
@@ -438,6 +457,41 @@ export function saveStaff(staff: Staff) {
 
 export function removeStaff(id: string) {
   writeDoc("staff", id, readDoc<Staff>("staff", id), true);
+}
+
+export function createTask(input: {
+  title: string;
+  note?: string;
+  assignedTo: string;
+  assignedName: string;
+  createdBy: string;
+}) {
+  const title = input.title.trim();
+  if (!title) return null;
+  const task: Task = {
+    id: uid(),
+    title,
+    note: input.note?.trim() || undefined,
+    assignedTo: input.assignedTo,
+    assignedName: input.assignedName,
+    createdBy: input.createdBy,
+    status: "open",
+    createdAt: Date.now(),
+  };
+  writeDoc("task", task.id, task);
+  return task;
+}
+
+export function setTaskStatus(id: string, status: Task["status"]) {
+  const t = readDoc<Task>("task", id);
+  if (!t) return;
+  writeDoc("task", id, { ...t, status, doneAt: status === "done" ? Date.now() : undefined });
+}
+
+export function deleteTask(id: string) {
+  const t = readDoc<Task>("task", id);
+  if (!t) return;
+  writeDoc("task", id, t, true);
 }
 
 export function updateSettings(patch: Partial<Settings>) {

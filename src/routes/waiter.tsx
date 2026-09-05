@@ -20,7 +20,7 @@ export const Route = createFileRoute("/waiter")({
     ],
   }),
   component: () => (
-    <PosShell allow={["owner", "cashier", "waiter", "helper"]}>
+    <PosShell allow={["owner", "manager", "waiter"]}>
       <WaiterPage />
     </PosShell>
   ),

@@ -66,7 +66,7 @@ export const Route = createFileRoute("/admin")({
 const TABS = ["Dashboard", "Stock", "Bills", "Staff", "Devices"] as const;
 type Tab = (typeof TABS)[number];
 
-const ROLES: Role[] = ["owner", "cashier", "cook", "waiter", "helper"];
+const ROLES: Role[] = ["owner", "manager", "cook", "waiter", "helper"];
 
 function Stat({ label, value, tone }: { label: string; value: string; tone?: string }) {
   return (
