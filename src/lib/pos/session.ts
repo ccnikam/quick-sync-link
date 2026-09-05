@@ -14,6 +14,8 @@ export function loadSession() {
   try {
     const raw = window.localStorage.getItem(KEY);
     session = raw ? (JSON.parse(raw) as Session) : null;
+    // "Cashier" is now "Manager".
+    if (session && (session.role as string) === "cashier") session = { ...session, role: "manager" };
   } catch {
     session = null;
   }
@@ -54,4 +56,4 @@ export function useSession() {
 
 
 export const homeFor = (role: Role) =>
-  role === "cook" ? "/kitchen" : role === "waiter" || role === "helper" ? "/waiter" : "/pos";
+  role === "cook" ? "/kitchen" : role === "helper" ? "/tasks" : role === "waiter" ? "/waiter" : "/pos";

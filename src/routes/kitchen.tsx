@@ -21,7 +21,7 @@ export const Route = createFileRoute("/kitchen")({
     ],
   }),
   component: () => (
-    <PosShell allow={["owner", "cashier", "cook"]}>
+    <PosShell allow={["owner", "manager", "cook"]}>
       <KitchenPage />
     </PosShell>
   ),

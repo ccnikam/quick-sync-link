@@ -1,4 +1,25 @@
-export type Role = "owner" | "cashier" | "cook" | "waiter" | "helper";
+export type Role = "owner" | "manager" | "cook" | "waiter" | "helper";
+
+export const ROLE_LABEL: Record<Role, string> = {
+  owner: "Owner",
+  manager: "Manager",
+  cook: "Kitchen",
+  waiter: "Waiter",
+  helper: "Helper",
+};
+
+export type Task = {
+  id: string;
+  title: string;
+  note?: string | undefined;
+  /** staff id, or "all" for everyone */
+  assignedTo: string;
+  assignedName: string;
+  createdBy: string;
+  status: "open" | "done";
+  createdAt: number;
+  doneAt?: number | undefined;
+};
 
 export type MenuItem = {
   id: string;
@@ -86,7 +107,7 @@ export type Settings = {
   allowNegativeStock: boolean;
 };
 
-export type DocKind = "table" | "bill" | "kot" | "stock" | "staff" | "settings";
+export type DocKind = "table" | "bill" | "kot" | "stock" | "staff" | "settings" | "task";
 
 export type Doc = {
   kind: DocKind;
